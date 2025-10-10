@@ -1,9 +1,10 @@
 <template>
   <RouterView />
+  <LoaderOverlay />
 </template>
 
 <script setup>
-// No necesitas lógica aún
+import LoaderOverlay from '@/components/ui/LoaderOverlay.vue'
 </script>
 
 <style>

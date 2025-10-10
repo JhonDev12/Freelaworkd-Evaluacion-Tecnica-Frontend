@@ -5,34 +5,29 @@
       role="main"
       aria-labelledby="login-title"
     >
-      <!-- LEFT: Imagen + branding (destaca mucho el logo) -->
+      <!-- LEFT: Imagen + branding -->
       <aside
         class="relative hidden md:flex flex-col items-center justify-center p-8 bg-gradient-to-tr from-[color:var(--primary)]/95 to-[color:var(--accent)]/60"
         aria-hidden="true"
       >
         <div class="flex flex-col items-center text-center text-white">
-          <!-- Logo grande (desde src/assets, bundleado por Vite) -->
           <img
             :src="logo"
             alt="Freelaworkd"
             class="w-80 h-auto drop-shadow-2xl transform transition-transform duration-500 hover:scale-105"
             loading="eager"
           />
-
           <h2 class="mt-6 text-3xl font-extrabold tracking-tight">Freelaworkd</h2>
           <p class="mt-2 max-w-xs leading-relaxed text-sm opacity-90">
             Plataforma de contratación freelance — conecta profesionales con proyectos reales.
           </p>
         </div>
-
-        <!-- decorativo -->
         <div class="absolute -bottom-6 -right-6 w-36 h-36 rounded-full opacity-20 blur-2xl bg-white/20"></div>
       </aside>
 
       <!-- RIGHT: Formulario -->
       <section class="p-8 md:p-10 flex flex-col justify-center">
         <div class="mb-6 md:mb-8">
-          <!-- logo visible en mobile (usa misma imagen importada) -->
           <img :src="logo" alt="Freelaworkd" class="mx-auto md:hidden w-40 h-auto" />
         </div>
 
@@ -58,10 +53,12 @@
               :class="inputClass(fieldError('email'))"
               placeholder="ejemplo@correo.com"
             />
-            <p v-if="fieldError('email')" class="mt-1 text-xs text-red-600" role="alert">{{ fieldError('email') }}</p>
+            <p v-if="fieldError('email')" class="mt-1 text-xs text-red-600" role="alert">
+              {{ fieldError('email') }}
+            </p>
           </div>
 
-          <!-- PASSWORD + toggle -->
+          <!-- PASSWORD -->
           <div>
             <label class="block text-sm font-semibold text-[var(--primary)] mb-1" for="password">Contraseña</label>
             <div class="relative">
@@ -86,7 +83,9 @@
                 <span v-else>👁️</span>
               </button>
             </div>
-            <p v-if="fieldError('password')" class="mt-1 text-xs text-red-600" role="alert">{{ fieldError('password') }}</p>
+            <p v-if="fieldError('password')" class="mt-1 text-xs text-red-600" role="alert">
+              {{ fieldError('password') }}
+            </p>
           </div>
 
           <!-- BUTTON -->
@@ -107,34 +106,37 @@
             </button>
           </div>
 
-          <!-- Mensajes de error / info -->
+          <!-- Mensajes -->
           <div aria-live="polite" class="min-h-[1.5rem]">
             <p v-if="errorMessage" class="text-sm text-red-600 text-center">{{ errorMessage }}</p>
             <p v-else-if="infoMessage" class="text-sm text-slate-600 text-center">{{ infoMessage }}</p>
           </div>
 
-          <!-- Extras -->
           <div class="flex items-center justify-between text-sm text-slate-600">
             <a href="#" class="hover:underline">¿Olvidaste tu contraseña?</a>
-            <router-link to="/register" class="text-[var(--primary)] underline">Crear cuenta</router-link>
+            <router-link to="/registro" class="text-[var(--primary)] underline">Crear cuenta</router-link>
           </div>
         </form>
       </section>
     </div>
+
+    <!-- 🔔 Notificación emergente -->
+    <transition name="fade">
+      <div
+        v-if="showToast"
+        class="fixed top-6 right-6 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium z-50"
+      >
+        {{ toastMessage }}
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup>
-/*
-  LoginView corregido para usar src/stores/authStore.js y logo importado desde src/assets.
-  - Import del store correcto: '@/stores/authStore' (usa alias @)
-  - Logo: importada desde src/assets para que Vite la procese
-*/
-
 import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "@/stores/authStore"; // IMPORT CORRECTO
-import logo from "@/assets/logo_freelaworld.png"; // <-- imagen desde src/assets
+import { useAuthStore } from "@/stores/authStore";
+import logo from "@/assets/logo_freelaworld.png";
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -145,11 +147,21 @@ const showPassword = ref(false);
 const loading = ref(false);
 const errorMessage = ref("");
 const infoMessage = ref("");
+const showToast = ref(false);
+const toastMessage = ref("");
 
-// Estructura para errores por campo (cuando backend devuelve errors)
 const errors = reactive({});
 
-// Helper: clases para inputs
+// Toast simple
+const showNotification = (msg) => {
+  toastMessage.value = msg;
+  showToast.value = true;
+  clearTimeout(showNotification.timeoutId);
+  showNotification.timeoutId = setTimeout(() => {
+    showToast.value = false;
+  }, 5000);
+};
+
 const inputClass = (hasError) =>
   [
     "w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2",
@@ -157,35 +169,49 @@ const inputClass = (hasError) =>
     hasError ? "border-red-400 focus:ring-red-300" : "border-gray-300 focus:ring-[var(--accent)]",
   ].join(" ");
 
-// Extrae mensaje de campo si existe
 const fieldError = (field) => errors[field] || "";
 
-// Manejo de login llamando al store (que ya hace CSRF y llamado api)
+// Login
 const handleLogin = async () => {
   errorMessage.value = "";
   infoMessage.value = "";
   Object.keys(errors).forEach((k) => delete errors[k]);
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.value)) {
+    const msg = "Por favor, ingresa un correo electrónico válido.";
+    errorMessage.value = msg;
+    showNotification(msg);
+    return;
+  }
+
+  if (!password.value) {
+    const msg = "La contraseña es obligatoria.";
+    errorMessage.value = msg;
+    showNotification(msg);
+    return;
+  }
+
   loading.value = true;
   try {
-    // Llamada al store; el store debe setear token + user y persistir token
+    // Usamos try interno para evitar que el store limpie los campos
     await auth.login({ email: email.value, password: password.value });
-
-    // éxito -> redirigir (usa replace para no dejar el login en el history)
     router.replace({ name: "dashboard" });
   } catch (err) {
-    // si backend devuelve validaciones:
-    if (err?.response?.status === 422 && err.response.data?.errors) {
-      const backendErrors = err.response.data.errors;
-      Object.keys(backendErrors).forEach((k) => {
-        errors[k] = Array.isArray(backendErrors[k]) ? backendErrors[k][0] : backendErrors[k];
-      });
-      errorMessage.value = "Revisa los campos indicados.";
-    } else if (err?.response?.data?.message) {
-      errorMessage.value = err.response.data.message;
-    } else {
-      errorMessage.value = "Error al iniciar sesión. Inténtalo de nuevo.";
+    // Manejamos errores sin reiniciar el componente
+    console.error("Error login:", err);
+    let msg = "Error al iniciar sesión. Inténtalo nuevamente.";
+
+    if (err?.response) {
+      const status = err.response.status;
+      if (status === 401) msg = "Correo o contraseña incorrectos.";
+      else if (status === 422) msg = "Revisa los campos indicados.";
+      else if (err.response.data?.message) msg = err.response.data.message;
     }
+
+    // 🔴 No reinicia los valores, solo muestra alerta
+    errorMessage.value = msg;
+    showNotification(msg);
   } finally {
     loading.value = false;
   }
@@ -198,6 +224,13 @@ const handleLogin = async () => {
   --accent: #00C8E5;
   --bg: #F9FAFB;
 }
-
-/* Si necesitas forzar reglas específicas que Tailwind no cubre, añádelas aquí. */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.4s ease, transform 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
 </style>

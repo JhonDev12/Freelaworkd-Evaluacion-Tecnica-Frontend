@@ -1,7 +1,7 @@
 // src/stores/authStore.js
 import { defineStore } from "pinia";
 import api, { setApiToken, API_ROOT } from "@/api/axios";
-import axios from "axios"; // para petición CSRF en la raíz del backend
+import axios from "axios";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -17,9 +17,6 @@ export const useAuthStore = defineStore("auth", {
   },
 
   actions: {
-    /**
-     * Inicializa: si hay token lo pone en headers y opcionalmente trae user
-     */
     async init({ fetchUser = true } = {}) {
       if (this.token) {
         setApiToken(this.token);
@@ -49,45 +46,29 @@ export const useAuthStore = defineStore("auth", {
       this.token = null;
       try {
         localStorage.removeItem("token");
-      } catch (e) {}
+      } catch (_) {}
       setApiToken(null);
     },
 
-    /**
-     * CSRF: solicita /sanctum/csrf-cookie en la raíz del backend (no en /api).
-     * Evita 404 en llamadas a /api/sanctum/csrf-cookie.
-     */
     async csrf() {
-      // API_ROOT exportado desde src/api/axios.js
       await axios.get(`${API_ROOT}/sanctum/csrf-cookie`, { withCredentials: true });
     },
 
-    /**
-     * LOGIN:
-     * - solicita CSRF (si usas cookie-based Sanctum)
-     * - llama a POST /api/auth/login
-     * - guarda token y user según respuesta
-     */
     async login({ email, password }) {
       this.loading = true;
       this.errors = {};
       this.message = null;
       try {
-        // Si backend usa cookie flow: pedir csrf-cookie
         await this.csrf();
-
         const res = await api.post("/auth/login", { email, password });
-        // backend puede devolver { mensaje, data: { user, token } } o directamente { user, token }
         const payload = res.data?.data ?? res.data ?? {};
 
-        // guardar token si llega
         if (payload.token) {
           this.setToken(payload.token);
         } else if (payload.access_token) {
           this.setToken(payload.access_token);
         }
 
-        // setear user (si viene) o intentar traerlo
         if (payload.user) {
           this.user = payload.user;
         } else {
@@ -100,8 +81,10 @@ export const useAuthStore = defineStore("auth", {
           this.errors = err.response.data.errors;
           this.message = "Corrige los campos indicados.";
         } else {
-          // muchos controladores devuelven 'mensaje' en español
-          this.message = err?.response?.data?.mensaje || err?.response?.data?.message || "Error al iniciar sesión";
+          this.message =
+            err?.response?.data?.mensaje ||
+            err?.response?.data?.message ||
+            "Error al iniciar sesión.";
         }
         throw err;
       } finally {
@@ -129,7 +112,10 @@ export const useAuthStore = defineStore("auth", {
           this.errors = err.response.data.errors;
           this.message = "Corrige los campos indicados.";
         } else {
-          this.message = err?.response?.data?.mensaje || err?.response?.data?.message || "Error en el registro";
+          this.message =
+            err?.response?.data?.mensaje ||
+            err?.response?.data?.message ||
+            "Error en el registro.";
         }
         throw err;
       } finally {
@@ -155,11 +141,10 @@ export const useAuthStore = defineStore("auth", {
       this.loading = true;
       try {
         const res = await api.get("/auth/user");
-        // endpoint /api/auth/user devuelve { user: ... } según tu controller
         this.user = res.data.user ?? res.data ?? null;
         return this.user;
       } catch (err) {
-        if (err?.response?.status === 401) {
+        if (err?.response?.status === 401 && this.user) {
           this.clearToken();
           this.user = null;
         }

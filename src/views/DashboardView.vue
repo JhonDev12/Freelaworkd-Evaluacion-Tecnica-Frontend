@@ -12,17 +12,21 @@
           <span v-if="rolUsuario" class="text-xs text-slate-500">({{ rolUsuario }})</span>
         </div>
 
-        <button
-          @click="abrirModalPerfil"
-          class="text-sm bg-[#00ADEF]/10 border border-[#00ADEF]/30 text-[#00ADEF] px-3 py-1.5 rounded-md hover:bg-[#00ADEF]/20 transition"
-        >
+        <button @click="abrirModalPerfil"
+          class="text-sm bg-[#00ADEF]/10 border border-[#00ADEF]/30 text-[#00ADEF] px-3 py-1.5 rounded-md hover:bg-[#00ADEF]/20 transition">
           Editar perfil
         </button>
+        <button @click="irAProyectos"
+          class="text-sm bg-[#00ADEF] text-white px-3 py-1.5 rounded-md shadow hover:bg-[#0095CE] transition">
+          Crear proyectos
+        </button>
+        <button @click="irAPropuestas"
+          class="text-sm bg-gradient-to-r from-[#93e60e] to-[#3b82f6] text-white px-4 py-2 rounded-md shadow-md hover:shadow-lg hover:scale-[1.03] transition-all duration-200">
+          Crear propuestas
+        </button>
 
-        <button
-          @click="cerrarSesion"
-          class="text-sm bg-red-50 border border-red-200 text-red-600 px-3 py-1.5 rounded-md hover:bg-red-100 transition"
-        >
+        <button @click="cerrarSesion"
+          class="text-sm bg-red-50 border border-red-200 text-red-600 px-3 py-1.5 rounded-md hover:bg-red-100 transition">
           Cerrar sesión
         </button>
       </div>
@@ -33,90 +37,46 @@
       <TarjetaKpi titulo="Proyectos" :valor="conteos.proyectos" color="from-blue-500 to-blue-700" />
       <TarjetaKpi titulo="Propuestas" :valor="conteos.propuestas" color="from-emerald-500 to-emerald-700" />
       <TarjetaKpi titulo="Abiertos" :valor="conteos.proyectosAbiertos" color="from-indigo-500 to-indigo-700" />
-      <TarjetaKpi
-        v-if="esSuperAdmin"
-        titulo="Roles"
-        :valor="conteos.roles"
-        color="from-cyan-500 to-cyan-700"
-      />
+      <TarjetaKpi v-if="esSuperAdmin" titulo="Roles" :valor="conteos.roles" color="from-cyan-500 to-cyan-700" />
     </section>
 
     <!-- Listas recientes -->
     <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <TarjetaLista
-        titulo="Proyectos recientes"
-        :elementos="proyectosRecientes"
-        tipo="proyecto"
-      />
-      <TarjetaLista
-        titulo="Propuestas recientes"
-        :elementos="propuestasRecientes"
-        tipo="propuesta"
-      />
+      <TarjetaLista titulo="Proyectos recientes" :elementos="proyectosRecientes" tipo="proyecto" />
+      <TarjetaLista titulo="Propuestas recientes" :elementos="propuestasRecientes" tipo="propuesta" />
     </section>
 
     <!-- Botones flotantes -->
     <div class="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
-      <button
-        v-if="esSuperAdmin"
-        @click="usuariosAbierto = true"
-        class="bg-[#002D5B] hover:bg-[#001E40] text-white font-medium px-4 py-2 rounded-full shadow-md transition"
-      >
+      <button v-if="esSuperAdmin" @click="usuariosAbierto = true"
+        class="bg-[#002D5B] hover:bg-[#001E40] text-white font-medium px-4 py-2 rounded-full shadow-md transition">
         Gestionar usuarios
       </button>
 
-      <button
-        v-if="esSuperAdmin"
-        @click="rolesAbierto = true"
-        class="bg-[#00ADEF] hover:bg-[#0095CE] text-white font-medium px-4 py-2 rounded-full shadow-md transition"
-      >
+      <button v-if="esSuperAdmin" @click="rolesAbierto = true"
+        class="bg-[#00ADEF] hover:bg-[#0095CE] text-white font-medium px-4 py-2 rounded-full shadow-md transition">
         Gestionar roles
       </button>
 
-      <button
-        v-if="esAdmin"
-        @click="habilidadesAbierto = true"
-        class="bg-[#00B8A9] hover:bg-[#009E92] text-white font-medium px-4 py-2 rounded-full shadow-md transition"
-      >
+      <button v-if="esAdmin" @click="habilidadesAbierto = true"
+        class="bg-[#00B8A9] hover:bg-[#009E92] text-white font-medium px-4 py-2 rounded-full shadow-md transition">
         Habilidades
       </button>
     </div>
 
     <!-- Modales -->
-    <GestorUsuarios
-      :abierto="usuariosAbierto"
-      @cerrar="usuariosAbierto = false"
-      @toast="pushToast"
-    />
+    <GestorUsuarios :abierto="usuariosAbierto" @cerrar="usuariosAbierto = false" @toast="pushToast" />
 
-    <GestorHabilidades
-      :abierto="habilidadesAbierto"
-      @cerrar="habilidadesAbierto = false"
-      @toast="pushToast"
-    />
+    <GestorHabilidades :abierto="habilidadesAbierto" @cerrar="habilidadesAbierto = false" @toast="pushToast" />
 
-    <GestionarRoles
-      :open="rolesAbierto"
-      @close="rolesAbierto = false"
-      @toast="pushToast"
-    />
+    <GestionarRoles :open="rolesAbierto" @close="rolesAbierto = false" @toast="pushToast" />
 
-    <EditarPerfilModal
-      v-if="perfilAbierto"
-      :usuario="usuario"
-      @cerrar="perfilAbierto = false"
-      @actualizado="actualizarUsuario"
-      @toast="pushToast"
-    />
+    <EditarPerfilModal v-if="perfilAbierto" :usuario="usuario" @cerrar="perfilAbierto = false"
+      @actualizado="actualizarUsuario" @toast="pushToast" />
 
     <!-- Toasts -->
-    <NotificacionToast
-      v-for="(t, i) in toasts"
-      :key="t.id || i"
-      :mensaje="t.mensaje"
-      :tipo="t.tipo"
-      :duracion="t.duracion || 2400"
-    />
+    <NotificacionToast v-for="(t, i) in toasts" :key="t.id || i" :mensaje="t.mensaje" :tipo="t.tipo"
+      :duracion="t.duracion || 2400" />
   </div>
 </template>
 
@@ -223,6 +183,12 @@ onMounted(async () => {
     console.warn('Error inicializando dashboard:', e)
   }
 })
+const irAProyectos = () => {
+  router.push({ name: 'proyectos' })
+}
+const irAPropuestas = () => {
+  router.push({ name: 'propuestas' })
+}
 </script>
 
 <style scoped>
