@@ -1,0 +1,17 @@
+/* Carga principal de Tailwind v4 */
+@import "tailwindcss";
+
+/* 🎨 Paleta Freelaworkd */
+@theme {
+  --color-primary: #002A4E;
+  --color-accent: #00C8E5;
+  --color-background: #F9FAFB;
+}
+
+/* 🩶 Estilos base */
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-primary);
+  -webkit-font-smoothing: antialiased;
+}
