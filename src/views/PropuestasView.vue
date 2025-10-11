@@ -1,62 +1,76 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#f5f9ff] via-white to-[#f0f6fc] p-10">
-    <!-- Encabezado -->
-    <header class="flex flex-col sm:flex-row justify-between items-center mb-10">
-      <div>
-        <h1 class="text-4xl font-extrabold text-[#002D5B] tracking-tight mb-2">
-          Gestión de Propuestas
-        </h1>
-        <p class="text-slate-500 text-sm">
-          Administra, crea y analiza tus propuestas activas en un solo lugar
-        </p>
+  <div class="min-h-screen flex flex-col bg-gradient-to-br from-[#eef6fc] via-white to-[#f3f8fd] p-4 sm:p-8">
+
+    <!-- CABECERA -->
+    <header class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-10">
+      <!-- IZQUIERDA: botón volver + título -->
+      <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 w-full lg:w-auto">
+        <button
+          @click="volverAtras"
+          class="order-2 sm:order-1 w-full sm:w-auto bg-[#00ADEF]/10 hover:bg-[#00ADEF]/20 border border-[#00ADEF]/30 text-[#00ADEF] font-medium px-5 py-2.5 rounded-lg shadow-sm hover:shadow transition-all duration-200"
+        >
+          ← Volver
+        </button>
+
+        <div class="order-1 sm:order-2 text-center sm:text-left w-full sm:w-auto">
+          <h1 class="text-3xl sm:text-4xl font-extrabold text-[#002D5B] tracking-tight mb-1">
+            Gestión de Propuestas
+          </h1>
+          <p class="text-slate-600 text-sm sm:text-base">
+            Administra, crea y analiza tus propuestas activas fácilmente.
+          </p>
+        </div>
       </div>
 
+      <!-- BOTÓN NUEVA PROPUESTA -->
       <button
         @click="abrirModalNuevo"
-        class="mt-5 sm:mt-0 bg-gradient-to-r from-[#06b6d4] to-[#3b82f6] text-white font-medium px-6 py-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.03] transition-all duration-200"
+        class="w-full sm:w-auto bg-gradient-to-r from-[#00ADEF] to-[#0084CA] text-white font-semibold px-5 py-2.5 rounded-xl shadow-md hover:scale-[1.04] hover:shadow-lg transition-all duration-300"
       >
         + Nueva Propuesta
       </button>
     </header>
 
-    <!-- Resumen estadístico -->
-    <section class="grid gap-6 sm:grid-cols-3 mb-12">
-      <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-md p-6 border border-slate-100 hover:shadow-lg transition-all duration-300">
+    <!-- ESTADÍSTICAS -->
+    <section class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-12">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 text-center hover:shadow-lg transition">
         <p class="text-xs uppercase text-slate-400 tracking-wide">Total de propuestas</p>
         <p class="text-4xl font-extrabold text-[#002D5B] mt-1">{{ propuestas.length }}</p>
       </div>
 
-      <div class="bg-gradient-to-br from-[#e0f7fa] to-[#f0faff] rounded-2xl shadow-md p-6 border border-[#00ADEF]/20 hover:shadow-lg transition-all duration-300">
+      <div class="bg-gradient-to-br from-[#e0f7fa] to-[#f0faff] rounded-2xl shadow-sm border border-[#00ADEF]/20 p-6 text-center hover:shadow-lg transition">
         <p class="text-xs uppercase text-slate-500 tracking-wide">Promedio presupuestal</p>
         <p class="text-4xl font-extrabold text-[#00ADEF] mt-1">
           ${{ promedioPresupuesto.toLocaleString('es-CO') }}
         </p>
       </div>
 
-      <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-md p-6 border border-slate-100 hover:shadow-lg transition-all duration-300">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 text-center hover:shadow-lg transition">
         <p class="text-xs uppercase text-slate-400 tracking-wide">Tiempo promedio estimado</p>
         <p class="text-4xl font-extrabold text-[#002D5B] mt-1">{{ promedioDias }} días</p>
       </div>
     </section>
 
-    <!-- Grid de propuestas -->
+    <!-- GRID DE PROPUESTAS -->
     <section>
-      <div v-if="!propuestas.length" class="text-center py-16 text-slate-500 italic text-lg font-medium">
+      <div
+        v-if="!propuestas.length"
+        class="text-center py-16 text-slate-500 italic text-lg font-medium"
+      >
         No hay propuestas registradas todavía.
       </div>
 
-      <div v-else class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div
+        v-else
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8"
+      >
         <div
           v-for="propuesta in propuestas"
           :key="propuesta.id"
-          class="relative bg-white/90 backdrop-blur-sm border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+          class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
         >
-          <div
-            class="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#06b6d4]/10 via-transparent to-[#3b82f6]/10 opacity-0 hover:opacity-100 transition duration-300"
-          ></div>
-
-          <div class="relative z-10">
-            <h2 class="text-lg font-semibold text-[#002D5B] leading-tight">
+          <div>
+            <h2 class="text-lg sm:text-xl font-semibold text-[#002D5B] leading-tight">
               {{ propuesta.proyecto?.titulo || 'Proyecto sin nombre' }}
             </h2>
             <p class="text-sm text-slate-500 italic mb-3">
@@ -79,35 +93,40 @@
                 <p class="font-semibold text-slate-700">{{ propuesta.tiempo_estimado }} días</p>
               </div>
             </div>
+          </div>
 
-            <div class="flex justify-end gap-4 border-t pt-3">
-              <button
-                @click="editar(propuesta)"
-                class="text-blue-600 hover:text-blue-800 font-medium text-sm transition"
-              >
-                Editar
-              </button>
-              <button
-                @click="abrirModalConfirmacion(propuesta.id)"
-                class="text-red-600 hover:text-red-800 font-medium text-sm transition"
-              >
-                Eliminar
-              </button>
-            </div>
+          <div class="flex justify-between items-center border-t pt-3 mt-auto">
+            <button
+              @click="editar(propuesta)"
+              class="text-[#0070C0] hover:text-[#004D80] font-medium text-sm transition"
+            >
+              Editar
+            </button>
+            <button
+              @click="abrirModalConfirmacion(propuesta.id)"
+              class="text-red-500 hover:text-red-700 font-medium text-sm transition"
+            >
+              Eliminar
+            </button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Modal de creación / edición -->
+    <!-- MODAL CREAR / EDITAR -->
     <transition name="modal-fade">
-      <div v-if="modalAbierto" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 animate-slide-up">
+      <div
+        v-if="modalAbierto"
+        class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 z-50"
+      >
+        <div
+          class="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-5 sm:p-6 overflow-y-auto max-h-[90vh] animate-fadeIn"
+        >
           <h2 class="text-2xl font-bold text-[#002D5B] mb-5">
             {{ propuestaActual?.id ? 'Editar Propuesta' : 'Nueva Propuesta' }}
           </h2>
 
-          <form @submit.prevent="guardarPropuesta" class="space-y-4">
+          <form @submit.prevent="guardarPropuesta" class="space-y-5">
             <div>
               <label class="block text-sm font-medium text-slate-700 mb-1">Proyecto asociado</label>
               <select
@@ -132,7 +151,7 @@
                 v-model.trim="form.descripcion"
                 required
                 placeholder="Describe brevemente tu propuesta..."
-                class="w-full border border-slate-300 rounded-lg p-2 h-28 resize-none focus:outline-none focus:ring-2 focus:ring-[#00ADEF]"
+                class="w-full border border-slate-300 rounded-lg p-2 h-28 resize-none focus:ring-2 focus:ring-[#00ADEF]"
               ></textarea>
             </div>
 
@@ -164,17 +183,17 @@
               </div>
             </div>
 
-            <div class="flex justify-end gap-3 pt-4 border-t">
+            <div class="flex flex-wrap justify-end gap-3 pt-4 border-t">
               <button
                 type="button"
                 @click="cerrarModal"
-                class="px-4 py-2 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300 transition"
+                class="w-full sm:w-auto px-4 py-2 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300 transition text-sm"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                class="px-4 py-2 bg-gradient-to-r from-[#06b6d4] to-[#3b82f6] text-white rounded-md hover:shadow-lg hover:scale-[1.03] transition-all duration-200"
+                class="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-[#00ADEF] to-[#0084CA] text-white rounded-md shadow hover:scale-[1.03] hover:shadow-lg transition-all duration-200 text-sm"
               >
                 Guardar
               </button>
@@ -184,18 +203,18 @@
       </div>
     </transition>
 
-    <!-- Toast -->
+    <!-- TOAST -->
     <div
       v-if="toast.mensaje"
       :class="[
-        'fixed bottom-6 right-6 px-4 py-2 rounded-lg shadow-lg text-white font-medium transition',
+        'fixed bottom-4 right-4 sm:bottom-6 sm:right-6 px-4 py-2 rounded-lg shadow-lg text-white font-medium transition text-sm sm:text-base',
         toast.tipo === 'error' ? 'bg-red-600' : 'bg-green-600',
       ]"
     >
       {{ toast.mensaje }}
     </div>
 
-    <!-- Modal de confirmación global -->
+    <!-- CONFIRMACIÓN -->
     <ConfirmModal
       :show="modalConfirmacion.abierto"
       title="¿Eliminar propuesta?"
@@ -210,11 +229,13 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { usePropuestaStore } from '@/stores/propuestaStore'
 import { useProyectoStore } from '@/stores/proyectoStore'
 import { useLoaderStore } from '@/stores/loaderStore'
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 
+const router = useRouter()
 const propuestaStore = usePropuestaStore()
 const proyectoStore = useProyectoStore()
 const loader = useLoaderStore()
@@ -232,11 +253,16 @@ const form = ref({
   tiempo_estimado: null,
 })
 
-// Toast
 const toast = ref({ mensaje: '', tipo: 'success' })
 const mostrarToast = ({ mensaje, tipo = 'success', duracion = 2500 }) => {
   toast.value = { mensaje, tipo }
   setTimeout(() => (toast.value.mensaje = ''), duracion)
+}
+
+// 🔙 Volver atrás
+const volverAtras = () => {
+  if (window.history.length > 1) router.back()
+  else router.push({ name: 'dashboard' })
 }
 
 // Carga inicial
@@ -245,67 +271,60 @@ onMounted(async () => {
   try {
     propuestas.value = await propuestaStore.fetchAll()
     proyectosDisponibles.value = await proyectoStore.fetchAll()
-  } catch (err) {
+  } catch {
     mostrarToast({ tipo: 'error', mensaje: 'Error al cargar los datos iniciales' })
   } finally {
     loader.ocultar()
   }
 })
 
-// Abrir modal
 const abrirModalNuevo = () => {
   propuestaActual.value = null
   form.value = { proyecto_id: '', descripcion: '', presupuesto: null, tiempo_estimado: null }
   modalAbierto.value = true
 }
-
 const cerrarModal = () => (modalAbierto.value = false)
-
-// Editar
 const editar = (propuesta) => {
   propuestaActual.value = propuesta
   form.value = { ...propuesta }
   modalAbierto.value = true
 }
 
-// Guardar propuesta
 const guardarPropuesta = async () => {
   try {
     loader.mostrar()
     if (propuestaActual.value?.id) {
       await propuestaStore.actualizar(propuestaActual.value.id, form.value)
-      mostrarToast({ tipo: 'success', mensaje: 'Propuesta actualizada correctamente.' })
+      mostrarToast({ mensaje: 'Propuesta actualizada correctamente.' })
     } else {
       await propuestaStore.crear(form.value)
-      mostrarToast({ tipo: 'success', mensaje: 'Propuesta creada correctamente.' })
+      mostrarToast({ mensaje: 'Propuesta creada correctamente.' })
     }
     propuestas.value = await propuestaStore.fetchAll()
     cerrarModal()
-  } catch (e) {
-    mostrarToast({ tipo: 'error', mensaje: e.message || 'Error al guardar la propuesta.' })
+  } catch {
+    mostrarToast({ tipo: 'error', mensaje: 'Error al guardar la propuesta.' })
   } finally {
     loader.ocultar()
   }
 }
 
-// Confirmación visual
+// Confirmación
 const abrirModalConfirmacion = (id) => {
   modalConfirmacion.value = { abierto: true, id }
 }
-
 const cerrarModalConfirmacion = () => {
   modalConfirmacion.value = { abierto: false, id: null }
 }
-
 const eliminarConfirmado = async () => {
   const id = modalConfirmacion.value.id
   if (!id) return
   try {
     loader.mostrar()
     await propuestaStore.eliminar(id)
-    propuestas.value = propuestas.value.filter((p) => p.id !== id)
-    mostrarToast({ tipo: 'success', mensaje: 'Propuesta eliminada correctamente.' })
-  } catch (e) {
+    propuestas.value = propuestas.value.filter(p => p.id !== id)
+    mostrarToast({ mensaje: 'Propuesta eliminada correctamente.' })
+  } catch {
     mostrarToast({ tipo: 'error', mensaje: 'Error al eliminar la propuesta.' })
   } finally {
     loader.ocultar()
@@ -313,13 +332,12 @@ const eliminarConfirmado = async () => {
   }
 }
 
-// Promedios corregidos
+// Cálculos
 const promedioPresupuesto = computed(() => {
   if (!propuestas.value.length) return 0
   const total = propuestas.value.reduce((acc, p) => acc + parseFloat(p.presupuesto || 0), 0)
   return Math.round(total / propuestas.value.length)
 })
-
 const promedioDias = computed(() => {
   if (!propuestas.value.length) return 0
   const total = propuestas.value.reduce((acc, p) => acc + parseFloat(p.tiempo_estimado || 0), 0)
@@ -342,17 +360,17 @@ const promedioDias = computed(() => {
 .modal-fade-leave-to {
   opacity: 0;
 }
-@keyframes slide-up {
-  0% {
-    transform: translateY(30px);
+@keyframes fadeIn {
+  from {
     opacity: 0;
+    transform: translateY(30px);
   }
-  100% {
-    transform: translateY(0);
+  to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
-.animate-slide-up {
-  animation: slide-up 0.3s ease;
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease;
 }
 </style>
