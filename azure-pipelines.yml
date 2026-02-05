@@ -1,34 +1,27 @@
-# Node.js + Vue + .NET Tests (Azure Pipelines Hosted)
+# Node.js with Vue + .NET Tests (Self-Hosted)
 
 trigger:
 - main
 
 pool:
-  vmImage: windows-latest
+  name: SelfHosted
 
 steps:
-# 1️⃣ Instalar Node.js
+# 1️⃣ Node.js
 - task: NodeTool@0
   inputs:
     versionSpec: '20.x'
   displayName: 'Install Node.js'
 
-# 2️⃣ Build Frontend (Vue)
+# 2️⃣ Build Vue
 - script: |
     node -v
     npm -v
     npm install
     npm run build
-  displayName: 'Build Frontend (Vue)'
+  displayName: 'npm install and build (Vue)'
 
-# 3️⃣ Instalar .NET SDK (CLAVE)
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '8.0.x'
-  displayName: 'Install .NET SDK 8'
-
-# 4️⃣ Pruebas unitarias .NET
+# 3️⃣ Pruebas unitarias .NET
 - script: |
     dotnet --version
     dotnet restore
