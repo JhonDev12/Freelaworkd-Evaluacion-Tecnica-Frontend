@@ -6,9 +6,6 @@ pool:
 
 steps:
 
-# 0️⃣ Checkout del repo actual (backend)
-- checkout: self
-
 # 1️⃣ Instalar Node
 - task: NodeTool@0
   inputs:
@@ -20,26 +17,28 @@ steps:
     git clone https://github.com/JhonDev12/Freelaworkd-Evaluacion-Tecnica-Frontend.git frontend
   displayName: 'Clonar frontend Vue'
 
-# 3️⃣ Ver estructura inicial
-- script: |
-    dir
-    dir frontend
-  displayName: 'Ver carpetas iniciales'
-
-# 4️⃣ Instalar dependencias (MOSTRAR ERRORES)
+# 3️⃣ Instalar dependencias y build
 - script: |
     cd frontend
-    npm install --verbose
-  displayName: 'npm install'
+    npm install
+    npm run build
+  displayName: 'Build Vue.js'
 
-# 5️⃣ Build Vue (MOSTRAR ERRORES)
-- script: |
-    cd frontend
-    npm run build --verbose
-  displayName: 'npm run build'
+# 4️⃣ Comprimir dist (OBLIGATORIO)
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: 'frontend/dist'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/vue-dist.zip'
+    replaceExistingArchive: true
+  displayName: 'Zip dist'
 
-# 6️⃣ Verificar si dist existe
-- script: |
-    dir frontend
-    dir frontend\dist
-  displayName: 'Verificar dist'
+# 5️⃣ Deploy a Azure App Service 🚀
+- task: AzureWebApp@1
+  displayName: 'Deploy Vue to Azure App Service'
+  inputs:
+    azureSubscription: 'AzureServiceConnection'
+    appType: 'webApp'
+    appName: 'AplicionPrueba'
+    package: '$(Build.ArtifactStagingDirectory)/vue-dist.zip'
