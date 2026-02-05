@@ -1,4 +1,4 @@
-## Node.js with Vue (Self-Hosted)
+# Node.js with Vue (Self-Hosted)
 
 trigger:
 - main
@@ -7,24 +7,29 @@ pool:
   name: SelfHosted
 
 steps:
-# 1️ Instalar Node
+# 1️⃣ Instalar Node
 - task: NodeTool@0
   inputs:
     versionSpec: '20.x'
   displayName: 'Install Node.js'
 
-# 2️ Build Vue
+# 2️⃣ Build Vue
 - script: |
     cd frontend
     npm install
     npm run build
   displayName: 'Build Vue.js'
 
-# 3️ Info del agente (debug)
+# 3️⃣ Publicar artefacto (dist)
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'frontend/dist'
+    ArtifactName: 'vue-app'
+    publishLocation: 'Container'
+  displayName: 'Publicar artefacto Vue'
+
+# 4️⃣ Info del agente (opcional)
 - script: |
     echo Agent Name: $(Agent.Name)
     echo Agent OS: $(Agent.OS)
-    echo Job Name: $(Agent.JobName)
-    echo Branch: $(Build.SourceBranch)
-    echo Collection: $(System.CollectionUri)
   displayName: 'Agent info'
