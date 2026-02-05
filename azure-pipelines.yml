@@ -1,0 +1,20 @@
+# Node.js with Vue (Self-Hosted Agent)
+
+trigger:
+- main
+
+pool:
+  name: SelfHosted   # 
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '20.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    node -v
+    npm -v
+    npm install
+    npm run build
+  displayName: 'npm install and build'
