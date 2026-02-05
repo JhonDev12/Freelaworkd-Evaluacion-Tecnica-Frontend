@@ -1,4 +1,4 @@
-# Node.js with Vue + .NET Tests (Self-Hosted)
+## Node.js with Vue (Self-Hosted)
 
 trigger:
 - main
@@ -7,19 +7,24 @@ pool:
   name: SelfHosted
 
 steps:
+# 1️ Instalar Node
 - task: NodeTool@0
   inputs:
     versionSpec: '20.x'
   displayName: 'Install Node.js'
 
+# 2️ Build Vue
 - script: |
     cd frontend
     npm install
     npm run build
-    echo $(Agent.Name)
-    echo $(Agent.OS)
-    echo $(Agent.JobName)
-    echo $(Build.SourceBranch)
-    echo $(System.CollectionUri)
   displayName: 'Build Vue.js'
- 
+
+# 3️ Info del agente (debug)
+- script: |
+    echo Agent Name: $(Agent.Name)
+    echo Agent OS: $(Agent.OS)
+    echo Job Name: $(Agent.JobName)
+    echo Branch: $(Build.SourceBranch)
+    echo Collection: $(System.CollectionUri)
+  displayName: 'Agent info'
