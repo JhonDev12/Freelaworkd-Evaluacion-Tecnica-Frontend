@@ -18,24 +18,32 @@ steps:
     cd frontend
     npm install
     npm run build
+    echo "📁 Contenido de frontend:"
+    dir
   displayName: 'Build Vue.js'
 
-# 3️⃣ Publicar artefacto (dist)
+# 3️⃣ Verificar dist
+- script: |
+    echo "📁 Verificando dist:"
+    dir frontend
+  displayName: 'Verificar carpetas'
+
+# 4️⃣ Publicar artefacto (dist)
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: 'frontend/dist'
+    PathtoPublish: '$(System.DefaultWorkingDirectory)/frontend/dist'
     ArtifactName: 'vue-app'
     publishLocation: 'Container'
   displayName: 'Publicar artefacto Vue'
 
-# 4️⃣ Descargar artefacto
+# 5️⃣ Descargar artefacto
 - task: DownloadPipelineArtifact@2
   inputs:
     artifact: 'vue-app'
     path: '$(Pipeline.Workspace)/vue-app'
   displayName: 'Descargar artefacto Vue'
 
-# 5️⃣ Deploy a Azure App Service 🚀
+# 6️⃣ Deploy a Azure App Service 🚀
 - task: AzureWebApp@1
   displayName: 'Deploy Vue to Azure App Service'
   inputs:
@@ -43,9 +51,3 @@ steps:
     appType: 'webApp'
     appName: 'AplicionPrueba'
     package: '$(Pipeline.Workspace)/vue-app'
-
-# 6️⃣ Info del agente (opcional)
-- script: |
-    echo Agent Name: $(Agent.Name)
-    echo Agent OS: $(Agent.OS)
-  displayName: 'Agent info'
