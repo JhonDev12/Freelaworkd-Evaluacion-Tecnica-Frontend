@@ -5,19 +5,27 @@ pool:
   name: SelfHosted
 
 steps:
-# 1️⃣ Instalar Node
+# 1️⃣ Node
 - task: NodeTool@0
   inputs:
     versionSpec: '20.x'
   displayName: 'Install Node.js'
 
-# 2️⃣ Instalar dependencias y build Vue (RAÍZ DEL REPO)
+# 2️⃣ Build Vue
 - script: |
     npm install
     npm run build
   displayName: 'Build Vue'
 
-# 3️⃣ Comprimir dist
+# 3️⃣ Verificar salida
+- script: |
+    echo === CONTENIDO DEL REPO ===
+    dir
+    echo === CONTENIDO DE dist ===
+    dir dist
+  displayName: 'Verificar dist'
+
+# 4️⃣ Zip dist
 - task: ArchiveFiles@2
   displayName: 'Zip dist'
   inputs:
@@ -27,9 +35,9 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/vue-dist.zip'
     replaceExistingArchive: true
 
-# 4️⃣ Deploy a Azure App Service (Windows)
+# 5️⃣ Deploy
 - task: AzureWebApp@1
-  displayName: 'Deploy Vue to Azure App Service'
+  displayName: 'Deploy Vue'
   inputs:
     azureSubscription: 'AzureServiceConnection'
     appType: 'webApp'
