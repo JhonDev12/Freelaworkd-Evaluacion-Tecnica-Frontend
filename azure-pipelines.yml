@@ -5,36 +5,30 @@ pool:
   name: SelfHosted
 
 steps:
-
 # 1️⃣ Instalar Node
 - task: NodeTool@0
   inputs:
     versionSpec: '20.x'
   displayName: 'Install Node.js'
 
-# 2️⃣ Clonar frontend
+# 2️⃣ Instalar dependencias y build Vue
 - script: |
-    git clone https://github.com/JhonDev12/Freelaworkd-Evaluacion-Tecnica-Frontend.git frontend
-  displayName: 'Clonar frontend Vue'
-
-# 3️⃣ Instalar dependencias y build
-- script: |
-    cd frontend
     npm install
     npm run build
-  displayName: 'Build Vue.js'
+  displayName: 'Build Vue'
+  workingDirectory: frontend
 
-# 4️⃣ Comprimir dist (OBLIGATORIO)
+# 3️⃣ Comprimir dist en ZIP (OBLIGATORIO)
 - task: ArchiveFiles@2
+  displayName: 'Zip dist folder'
   inputs:
     rootFolderOrFile: 'frontend/dist'
     includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/vue-dist.zip'
     replaceExistingArchive: true
-  displayName: 'Zip dist'
 
-# 5️⃣ Deploy a Azure App Service 🚀
+# 4️⃣ Deploy a Azure App Service (Windows)
 - task: AzureWebApp@1
   displayName: 'Deploy Vue to Azure App Service'
   inputs:
