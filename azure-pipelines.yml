@@ -20,16 +20,24 @@ steps:
     npm run build
   displayName: 'Build Vue.js'
 
-# 3️⃣ Publicar artefacto (dist)
-- task: PublishBuildArtifacts@1
+# 3️⃣ Deploy a Azure App Service 🚀
+- task: AzureWebApp@1
+  displayName: 'Deploy Vue to Azure App Service'
   inputs:
-    PathtoPublish: 'frontend/dist'
-    ArtifactName: 'vue-app'
-    publishLocation: 'Container'
-  displayName: 'Publicar artefacto Vue'
+    azureSubscription: 'AzureServiceConnection'
+    appType: 'webApp'
+    appName: 'AplicionPrueba'
+    package: 'frontend/dist'
 
 # 4️⃣ Info del agente (opcional)
 - script: |
     echo Agent Name: $(Agent.Name)
     echo Agent OS: $(Agent.OS)
   displayName: 'Agent info'
+- task: AzureRmWebAppDeployment@5
+  inputs:
+    ConnectionType: 'AzureRM'
+    azureSubscription: 'AzureServiceConnection'
+    appType: 'webApp'
+    WebAppName: 'AplicionPrueba'
+    packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
