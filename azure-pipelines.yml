@@ -7,7 +7,7 @@ pool:
   name: SelfHosted
 
 steps:
-# 1️⃣ Instalar Node
+# 1️⃣ Instalar Node.js
 - task: NodeTool@0
   inputs:
     versionSpec: '20.x'
@@ -20,24 +20,32 @@ steps:
     npm run build
   displayName: 'Build Vue.js'
 
-# 3️⃣ Deploy a Azure App Service 🚀
+# 3️⃣ Publicar artefacto (dist)
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'frontend/dist'
+    ArtifactName: 'vue-app'
+    publishLocation: 'Container'
+  displayName: 'Publicar artefacto Vue'
+
+# 4️⃣ Descargar artefacto
+- task: DownloadPipelineArtifact@2
+  inputs:
+    artifact: 'vue-app'
+    path: '$(Pipeline.Workspace)/vue-app'
+  displayName: 'Descargar artefacto Vue'
+
+# 5️⃣ Deploy a Azure App Service 🚀
 - task: AzureWebApp@1
   displayName: 'Deploy Vue to Azure App Service'
   inputs:
     azureSubscription: 'AzureServiceConnection'
     appType: 'webApp'
     appName: 'AplicionPrueba'
-    package: 'frontend/dist'
+    package: '$(Pipeline.Workspace)/vue-app'
 
-# 4️⃣ Info del agente (opcional)
+# 6️⃣ Info del agente (opcional)
 - script: |
     echo Agent Name: $(Agent.Name)
     echo Agent OS: $(Agent.OS)
   displayName: 'Agent info'
-- task: AzureRmWebAppDeployment@5
-  inputs:
-    ConnectionType: 'AzureRM'
-    azureSubscription: 'AzureServiceConnection'
-    appType: 'webApp'
-    WebAppName: 'AplicionPrueba'
-    packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
