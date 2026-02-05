@@ -1,20 +1,29 @@
-# Node.js with Vue (Self-Hosted Agent)
+# Node.js with Vue + .NET Tests (Self-Hosted Agent)
 
 trigger:
 - main
 
 pool:
-  name: SelfHosted   # 
+  name: SelfHosted
 
 steps:
+# 1️ Instalar Node.js
 - task: NodeTool@0
   inputs:
     versionSpec: '20.x'
   displayName: 'Install Node.js'
 
+# 2️ Build del frontend (Vue)
 - script: |
     node -v
     npm -v
     npm install
     npm run build
-  displayName: 'npm install and build'
+  displayName: 'npm install and build (Vue)'
+
+# 3️ Pruebas unitarias .NET
+- script: |
+    dotnet --version
+    dotnet restore
+    dotnet test
+  displayName: 'Pruebas unitarias (.NET)'
