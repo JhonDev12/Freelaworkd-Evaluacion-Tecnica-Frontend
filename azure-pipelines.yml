@@ -16,4 +16,10 @@ steps:
     cd frontend
     npm install
     npm run build
+    echo $(Agent.Name)
+    echo $(Agent.OS)
+    echo $(Agent.JobName)
+    echo $(Build.SourceBranch)
+    echo $(System.CollectionUri)
   displayName: 'Build Vue.js'
+ 
