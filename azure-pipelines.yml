@@ -11,18 +11,17 @@ steps:
     versionSpec: '20.x'
   displayName: 'Install Node.js'
 
-# 2️⃣ Instalar dependencias y build Vue
+# 2️⃣ Instalar dependencias y build Vue (RAÍZ DEL REPO)
 - script: |
     npm install
     npm run build
   displayName: 'Build Vue'
-  workingDirectory: frontend
 
-# 3️⃣ Comprimir dist en ZIP (OBLIGATORIO)
+# 3️⃣ Comprimir dist
 - task: ArchiveFiles@2
-  displayName: 'Zip dist folder'
+  displayName: 'Zip dist'
   inputs:
-    rootFolderOrFile: 'frontend/dist'
+    rootFolderOrFile: 'dist'
     includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/vue-dist.zip'
