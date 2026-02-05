@@ -1,4 +1,4 @@
-# Node.js with Vue (Self-Hosted)
+# Vue.js → Azure App Service (Self-Hosted)
 
 trigger:
 - main
@@ -13,41 +13,33 @@ steps:
     versionSpec: '20.x'
   displayName: 'Install Node.js'
 
-# 2️⃣ Build Vue
+# 2️⃣ Instalar dependencias y build Vue
 - script: |
-    cd frontend
     npm install
     npm run build
-    echo "📁 Contenido de frontend:"
+    echo 📁 Contenido del repo:
     dir
   displayName: 'Build Vue.js'
 
 # 3️⃣ Verificar dist
 - script: |
-    echo "📁 Verificando dist:"
-    dir frontend
-  displayName: 'Verificar carpetas'
+    echo 📁 Verificando carpeta dist:
+    dir dist
+  displayName: 'Verificar dist'
 
-# 4️⃣ Publicar artefacto (dist)
+# 4️⃣ Publicar artefacto
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$(System.DefaultWorkingDirectory)/frontend/dist'
+    PathtoPublish: '$(System.DefaultWorkingDirectory)/dist'
     ArtifactName: 'vue-app'
     publishLocation: 'Container'
   displayName: 'Publicar artefacto Vue'
 
-# 5️⃣ Descargar artefacto
-- task: DownloadPipelineArtifact@2
-  inputs:
-    artifact: 'vue-app'
-    path: '$(Pipeline.Workspace)/vue-app'
-  displayName: 'Descargar artefacto Vue'
-
-# 6️⃣ Deploy a Azure App Service 🚀
+# 5️⃣ Deploy a Azure App Service 🚀
 - task: AzureWebApp@1
   displayName: 'Deploy Vue to Azure App Service'
   inputs:
     azureSubscription: 'AzureServiceConnection'
     appType: 'webApp'
     appName: 'AplicionPrueba'
-    package: '$(Pipeline.Workspace)/vue-app'
+    package: '$(System.DefaultWorkingDirectory)/dist'
