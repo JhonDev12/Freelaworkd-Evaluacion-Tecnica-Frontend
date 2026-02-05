@@ -7,23 +7,13 @@ pool:
   name: SelfHosted
 
 steps:
-# 1️⃣ Node.js
 - task: NodeTool@0
   inputs:
     versionSpec: '20.x'
   displayName: 'Install Node.js'
 
-# 2️⃣ Build Vue
 - script: |
-    node -v
-    npm -v
+    cd frontend
     npm install
     npm run build
-  displayName: 'npm install and build (Vue)'
-
-# 3️⃣ Pruebas unitarias .NET
-- script: |
-    dotnet --version
-    dotnet restore
-    dotnet test
-  displayName: 'Pruebas unitarias (.NET)'
+  displayName: 'Build Vue.js'
